@@ -30,6 +30,9 @@ jobs:
           cp -R database/migrations /tmp/globiim-module/
           cp routes/api.php /tmp/globiim-module/api.php
           cp bootstrap/app.php /tmp/globiim-module/bootstrap-app.php
+          cp -R tests /tmp/globiim-module/tests
+          cp README.md /tmp/globiim-module/README.md
+          cp -R .github /tmp/globiim-module/github
       - name: Generate official Laravel application skeleton
         run: composer create-project laravel/laravel laravel-app "^12.0" --no-interaction
       - name: Install Sanctum and restore Globiim account module
@@ -44,6 +47,11 @@ jobs:
           cp -R /tmp/globiim-module/Notifications app/
           cp /tmp/globiim-module/api.php routes/api.php
           cp /tmp/globiim-module/bootstrap-app.php bootstrap/app.php
+          rm -rf tests
+          cp -R /tmp/globiim-module/tests tests
+          cp /tmp/globiim-module/README.md README.md
+          mkdir -p .github
+          cp -R /tmp/globiim-module/github/workflows .github/
           cp /tmp/globiim-module/migrations/* database/migrations/
           composer dump-autoload
           php artisan route:list --path=api
