@@ -1,0 +1,58 @@
+name: Bootstrap Laravel backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-laravel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    if: ${{ !hashFiles('artisan') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+          coverage: none
+      - name: Preserve Globiim account module
+        run: |
+          mkdir -p /tmp/globiim-module
+          cp -R app/Models /tmp/globiim-module/
+          cp -R app/Http/Controllers/Api /tmp/globiim-module/Api
+          cp -R app/Notifications /tmp/globiim-module/
+          cp -R database/migrations /tmp/globiim-module/
+          cp routes/api.php /tmp/globiim-module/api.php
+      - name: Generate official Laravel application skeleton
+        run: composer create-project laravel/laravel laravel-app "^12.0" --no-interaction
+      - name: Install Sanctum and restore Globiim account module
+        run: |
+          cd laravel-app
+          composer require laravel/sanctum:^4.0 --no-interaction
+          rm -f database/migrations/*create_users_table.php
+          rm -f database/migrations/*create_personal_access_tokens_table.php
+          cp -R /tmp/globiim-module/Models app/
+          mkdir -p app/Http/Controllers
+          cp -R /tmp/globiim-module/Api app/Http/Controllers/
+          cp -R /tmp/globiim-module/Notifications app/
+          cp /tmp/globiim-module/api.php routes/api.php
+          cp /tmp/globiim-module/migrations/* database/migrations/
+          composer dump-autoload
+          php artisan route:list --path=api
+      - name: Run Laravel tests
+        working-directory: laravel-app
+        run: php artisan test
+      - name: Replace repository with runnable Laravel project
+        run: |
+          rsync -a --delete --exclude='.git' laravel-app/ ./
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Bootstrap runnable Laravel 12 backend [skip ci]"
+          git push
