@@ -65,7 +65,7 @@ class CommerceExpansionController extends Controller
 
         $isOwner = DB::table('commerce_sellers')->where('id', $item->seller_id)
             ->where('user_id', $request->user()->id)->exists();
-        if (!$isOwner && !$request->user()->status === 'active') {
+        if (!$isOwner && ($request->user()->status ?? null) !== 'active') {
             return response()->json(['message' => 'An active account is required to attach creator content.'], 403);
         }
 
@@ -185,7 +185,9 @@ class CommerceExpansionController extends Controller
         $data = $request->validate(['message' => ['required', 'string', 'min:5', 'max:5000'], 'proposal' => ['nullable', 'array']]);
         $profile = DB::table('commerce_partner_profiles')->where('id', $partner)->where('status', 'approved')->first();
         if (!$profile) return response()->json(['message' => 'Partner profile not found.'], 404);
-        if ($profile->seller_id === $request->user()->id) {
+        $ownsPartner = DB::table('commerce_sellers')->where('id', $profile->seller_id)
+            ->where('user_id', $request->user()->id)->exists();
+        if ($ownsPartner) {
             return response()->json(['message' => 'You cannot apply to your own partner profile.'], 422);
         }
         $id = DB::table('commerce_partner_applications')->insertGetId([
