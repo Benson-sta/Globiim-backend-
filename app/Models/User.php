@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;\nuse Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,7 +11,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = [
+    public function conversations(): BelongsToMany\n    {\n        return $this->belongsToMany(Conversation::class)->withPivot(['joined_at', 'last_read_at', 'muted'])->withTimestamps();\n    }\n\n    protected $fillable = [
         'name', 'username', 'email', 'phone', 'password', 'account_type',
         'avatar_url', 'bio', 'country_code', 'email_verified_at',
         'phone_verified_at', 'status',
