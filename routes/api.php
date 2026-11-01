@@ -45,6 +45,7 @@ Route::prefix('v1')->group(function (): void {
             Route::patch('/cart/items/{item}', [CommerceController::class, 'updateCartItem']);
             Route::post('/checkout', [CommerceController::class, 'checkout'])->middleware('throttle:10,1');
             Route::get('/orders', [CommerceController::class, 'orders']);
+            Route::post('/orders/{order}/cancel', [CommerceController::class, 'cancelOrder']);
             Route::post('/quotes', [CommerceController::class, 'requestQuote'])->middleware('throttle:10,1');
             Route::post('/business-requests', [CommerceController::class, 'createBusinessRequest'])->middleware('throttle:10,1');
             Route::get('/business-requests/mine', [CommerceController::class, 'myBusinessRequests']);
