@@ -51,6 +51,7 @@ Product JSON supports `name`, `description`, `category`, `product_type`, `price`
 | PATCH | `/cart/items/{cartItemId}` | Set quantity; zero removes item |
 | POST | `/checkout` | Create pending order from active cart |
 | GET | `/orders` | Current user's order history |
+| POST | `/orders/{orderId}/cancel` | Cancel an unpaid pending order and release reserved stock |
 | POST | `/saved/{productId}` | Save product |
 | DELETE | `/saved/{productId}` | Unsave product |
 | GET | `/saved` | Saved products |
@@ -74,7 +75,7 @@ Business request JSON: `request_type`, `title`, `description`, optional `categor
 
 - Laravel 12 + MySQL schema; protected endpoints use Sanctum.
 - Cart and order writes use database transactions where stock is reserved/decremented.
-- Checkout creates an order record only. Payment gateway, refunds, delivery tracking, seller payouts and courier/taxi dispatch are not connected.
+- Checkout creates an unpaid order and reserves inventory. Customers can cancel an unpaid pending order to release stock. Payment gateway, refunds, delivery tracking, seller payouts and courier/taxi dispatch are not connected.
 - Store approval/admin moderation, inventory imports, multi-warehouse fulfilment, affiliate commissions, creator revenue sharing, real-estate viewing workflows, accommodation bookings and external sourcing integrations are future phases.
 - Reviews accept 0-star ratings as requested; verified-purchase status is derived from the user's order history. Reviews are not filtered by positive/negative sentiment.
 - Media currently accepts URLs only. Add private upload/signing and malware/content validation before production use.
