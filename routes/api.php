@@ -19,6 +19,8 @@ Route::prefix('v1')->group(function (): void {
 
     Route::get('/commerce/products', [CommerceController::class, 'products']);
     Route::get('/commerce/products/{product}', [CommerceController::class, 'product']);
+    Route::get('/commerce/stores', [CommerceController::class, 'stores']);
+    Route::get('/commerce/business-requests', [CommerceController::class, 'businessRequests']);
     Route::get('/commerce/stores/{slug}', [CommerceController::class, 'seller']);
 
     Route::middleware('auth:sanctum')->group(function (): void {
