@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CommerceController;
+use App\Http\Controllers\Api\V1\CommerceExpansionController;
 use App\Http\Controllers\Api\V1\MessagingController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\VerificationController;
@@ -22,6 +23,11 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/commerce/stores', [CommerceController::class, 'stores']);
     Route::get('/commerce/business-requests', [CommerceController::class, 'businessRequests']);
     Route::get('/commerce/stores/{slug}', [CommerceController::class, 'seller']);
+    Route::get('/commerce/local/businesses', [CommerceExpansionController::class, 'localBusinesses']);
+    Route::get('/commerce/watch-shop', [CommerceExpansionController::class, 'watchAndShop']);
+    Route::get('/commerce/listings', [CommerceExpansionController::class, 'listings']);
+    Route::get('/commerce/listings/{slug}', [CommerceExpansionController::class, 'listing']);
+    Route::get('/commerce/partner-network', [CommerceExpansionController::class, 'partnerDirectory']);
 
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -40,12 +46,14 @@ Route::prefix('v1')->group(function (): void {
             Route::get('/seller/me', [CommerceController::class, 'myStore']);
             Route::post('/products', [CommerceController::class, 'createProduct']);
             Route::post('/products/{product}/publish', [CommerceController::class, 'publishProduct']);
+            Route::post('/products/{product}/videos', [CommerceExpansionController::class, 'createProductVideo']);
             Route::get('/cart', [CommerceController::class, 'cart']);
             Route::post('/cart/items', [CommerceController::class, 'addToCart'])->middleware('throttle:30,1');
             Route::patch('/cart/items/{item}', [CommerceController::class, 'updateCartItem']);
             Route::post('/checkout', [CommerceController::class, 'checkout'])->middleware('throttle:10,1');
             Route::get('/orders', [CommerceController::class, 'orders']);
             Route::post('/orders/{order}/cancel', [CommerceController::class, 'cancelOrder']);
+            Route::get('/orders/{order}/shipments', [CommerceExpansionController::class, 'myShipments']);
             Route::post('/quotes', [CommerceController::class, 'requestQuote'])->middleware('throttle:10,1');
             Route::post('/business-requests', [CommerceController::class, 'createBusinessRequest'])->middleware('throttle:10,1');
             Route::get('/business-requests/mine', [CommerceController::class, 'myBusinessRequests']);
@@ -53,6 +61,12 @@ Route::prefix('v1')->group(function (): void {
             Route::post('/saved/{product}', [CommerceController::class, 'saveProduct']);
             Route::delete('/saved/{product}', [CommerceController::class, 'unsaveProduct']);
             Route::post('/reviews', [CommerceController::class, 'review'])->middleware('throttle:10,1');
+
+            Route::post('/listings', [CommerceExpansionController::class, 'createListing']);
+            Route::post('/listings/{listing}/publish', [CommerceExpansionController::class, 'publishListing']);
+            Route::post('/listings/{listing}/bookings', [CommerceExpansionController::class, 'requestListingBooking']);
+            Route::get('/bookings/mine', [CommerceExpansionController::class, 'myBookings']);
+            Route::post('/partner-network/{partner}/applications', [CommerceExpansionController::class, 'applyToPartner']);
         });
     });
 });
