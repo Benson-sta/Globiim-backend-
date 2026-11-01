@@ -58,6 +58,24 @@ class CommerceController extends Controller
         return response()->json(['data' => $item]);
     }
 
+
+    public function stores(Request $request)
+    {
+        $query = DB::table('commerce_sellers')->where('status', 'approved');
+        if ($request->filled('q')) $query->where('store_name', 'like', '%' . addcslashes($request->string('q')->toString(), '%_') . '%');
+        if ($request->filled('city')) $query->where('city', $request->string('city')->toString());
+        if ($request->filled('seller_type')) $query->where('seller_type', $request->string('seller_type')->toString());
+        return response()->json(['data' => $query->orderByDesc('verified')->orderBy('store_name')->paginate(20)]);
+    }
+
+    public function businessRequests(Request $request)
+    {
+        $query = DB::table('commerce_business_requests')->where('status', 'open');
+        if ($request->filled('request_type')) $query->where('request_type', $request->string('request_type')->toString());
+        if ($request->filled('city')) $query->where('city', $request->string('city')->toString());
+        return response()->json(['data' => $query->orderByDesc('created_at')->paginate(20)]);
+    }
+
     public function seller(string $slug)
     {
         $seller = DB::table('commerce_sellers')->where('slug', $slug)->where('status', 'approved')->first();
@@ -161,10 +179,17 @@ class CommerceController extends Controller
         $quantity = $data['quantity'] ?? 1;
         if ($product->stock_quantity < $quantity) return response()->json(['message' => 'Not enough stock is currently available.'], 422);
         $cart = $this->activeCart($request->user()->id);
-        DB::table('commerce_cart_items')->updateOrInsert(
-            ['cart_id' => $cart->id, 'product_id' => $product->id],
-            ['quantity' => DB::raw('COALESCE(quantity, 0) + ' . (int) $quantity), 'updated_at' => now(), 'created_at' => now()]
-        );
+        $line = DB::table('commerce_cart_items')->where('cart_id', $cart->id)->where('product_id', $product->id)->first();
+        $newQuantity = ($line->quantity ?? 0) + $quantity;
+        if ($newQuantity > $product->stock_quantity) return response()->json(['message' => 'Not enough stock is currently available.'], 422);
+        if ($line) {
+            DB::table('commerce_cart_items')->where('id', $line->id)->update(['quantity' => $newQuantity, 'updated_at' => now()]);
+        } else {
+            DB::table('commerce_cart_items')->insert([
+                'cart_id' => $cart->id, 'product_id' => $product->id, 'quantity' => $quantity,
+                'created_at' => now(), 'updated_at' => now(),
+            ]);
+        }
         return response()->json(['message' => 'Added to cart.', 'data' => $this->cartPayload($cart->id)], 201);
     }
 
