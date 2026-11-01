@@ -19,6 +19,6 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::get('/profile', [ProfileController::class, 'show']);
-        Route::patch('/profile', [ProfileController::class, 'update']);
+        Route::patch('/profile', [ProfileController::class, 'update']);\n\n        Route::get('/messaging/conversations', [MessagingController::class, 'conversations']);\n        Route::post('/messaging/conversations', [MessagingController::class, 'createConversation']);\n        Route::get('/messaging/conversations/{conversation}/messages', [MessagingController::class, 'messages']);\n        Route::post('/messaging/conversations/{conversation}/messages', [MessagingController::class, 'sendMessage'])->middleware('throttle:60,1');\n        Route::post('/messaging/conversations/{conversation}/read', [MessagingController::class, 'markRead']);
     });
 });
