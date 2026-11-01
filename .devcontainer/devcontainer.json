@@ -1,0 +1,43 @@
+{
+  "name": "Globiim Backend (PHP, Go and Python)",
+  "image": "mcr.microsoft.com/devcontainers/php:1-8.3-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.24"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+  "forwardPorts": [8000, 8080, 5173],
+  "portsAttributes": {
+    "8000": {
+      "label": "Laravel API",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Go service",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Frontend development server",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "laravel.vscode-laravel",
+        "golang.go",
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  "postCreateCommand": "php --version && composer --version && go version && python --version && node --version",
+  "remoteUser": "vscode"
+}
