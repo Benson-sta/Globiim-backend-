@@ -41,6 +41,24 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/messaging/conversations/{conversation}/messages', [MessagingController::class, 'sendMessage'])->middleware('throttle:60,1');
         Route::post('/messaging/conversations/{conversation}/read', [MessagingController::class, 'markRead']);
 
+        Route::prefix('go')->group(function (): void {
+            Route::get('/dashboard', [GlobiimGoController::class, 'dashboard']);
+            Route::post('/partners/apply', [GlobiimGoController::class, 'applyPartner'])->middleware('throttle:10,1');
+            Route::post('/drivers/apply', [GlobiimGoController::class, 'applyDriver'])->middleware('throttle:5,1');
+            Route::post('/vehicles', [GlobiimGoController::class, 'createVehicle'])->middleware('throttle:10,1');
+            Route::post('/fleet/management-requests', [GlobiimGoController::class, 'requestFleetManagement']);
+            Route::post('/rides', [GlobiimGoController::class, 'requestRide'])->middleware('throttle:10,1');
+            Route::get('/rides', [GlobiimGoController::class, 'rides']);
+            Route::get('/trips', [GlobiimGoController::class, 'trips']);
+            Route::post('/trips', [GlobiimGoController::class, 'createTrip']);
+            Route::post('/trips/{trip}/publish', [GlobiimGoController::class, 'publishTrip']);
+            Route::post('/trips/{trip}/book', [GlobiimGoController::class, 'bookTrip'])->middleware('throttle:10,1');
+            Route::post('/deliveries', [GlobiimGoController::class, 'createDelivery']);
+            Route::post('/vehicle-transports', [GlobiimGoController::class, 'createVehicleTransport']);
+            Route::post('/corporate/accounts', [GlobiimGoController::class, 'createCorporateAccount']);
+            Route::post('/safety/incidents', [GlobiimGoController::class, 'reportIncident'])->middleware('throttle:5,1');
+        });
+
         Route::prefix('commerce')->group(function (): void {
             Route::post('/seller/apply', [CommerceController::class, 'applyAsSeller']);
             Route::get('/seller/me', [CommerceController::class, 'myStore']);
