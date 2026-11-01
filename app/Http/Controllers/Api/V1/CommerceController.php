@@ -258,6 +258,27 @@ class CommerceController extends Controller
         return response()->json(['data' => $orders]);
     }
 
+
+    public function cancelOrder(Request $request, int $order)
+    {
+        DB::transaction(function () use ($request, $order) {
+            $record = DB::table('commerce_orders')->where('id', $order)
+                ->where('user_id', $request->user()->id)->lockForUpdate()->first();
+            if (!$record) abort(404, 'Order not found.');
+            if ($record->payment_status !== 'unpaid' || !in_array($record->status, ['pending', 'confirmed'], true)) {
+                abort(422, 'Only unpaid pending orders can be cancelled by the customer.');
+            }
+            $items = DB::table('commerce_order_items')->where('order_id', $record->id)->get();
+            foreach ($items as $item) {
+                if ($item->product_id) {
+                    DB::table('commerce_products')->where('id', $item->product_id)->increment('stock_quantity', $item->quantity);
+                }
+            }
+            DB::table('commerce_orders')->where('id', $record->id)->update(['status' => 'cancelled', 'updated_at' => now()]);
+        });
+        return response()->json(['message' => 'Unpaid order cancelled and reserved stock released.']);
+    }
+
     public function requestQuote(Request $request)
     {
         $data = $request->validate([
