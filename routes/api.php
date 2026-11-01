@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CommerceController;
 use App\Http\Controllers\Api\V1\CommerceExpansionController;
 use App\Http\Controllers\Api\V1\MessagingController;
+use App\Http\Controllers\Api\V1\GlobiimGoController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\VerificationController;
 use Illuminate\Support\Facades\Route;
