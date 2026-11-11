@@ -65,6 +65,15 @@ class AuthenticateGlobiimUser
         $name = trim((string) ($metadata['full_name'] ?? $metadata['name'] ?? ($email ? strstr($email, '@', true) : 'Globiim user')));
         if ($name === '') $name = 'Globiim user';
 
+        if ($email) {
+            $emailOwner = User::query()->where('email', $email)
+                ->when($user, fn ($query) => $query->whereKeyNot($user->id))
+                ->exists();
+            if ($emailOwner) {
+                return new JsonResponse(['message' => 'This email is already attached to another Globiim account. Contact support.'], 409);
+            }
+        }
+
         $candidate = (string) ($metadata['username'] ?? '');
         $username = Str::lower(Str::slug($candidate ?: $name, '_'));
         if (!preg_match('/^[A-Za-z0-9_-]{3,30}$/', $username)) {
@@ -92,7 +101,7 @@ class AuthenticateGlobiimUser
         $user->supabase_user_id = $supabaseId;
         $user->name = $user->name ?: $name;
         $user->email = $email ?: $user->email;
-        if ($phone && (!$user->phone || $user->phone === $phone)) $user->phone = $phone;
+        if ($phone && (!$user->phone || $user->phone === $phone) && !User::query()->where('phone', $phone)->when($user->exists, fn ($query) => $query->whereKeyNot($user->id))->exists()) $user->phone = $phone;
         $user->account_type = $user->account_type ?: $accountType;
         $user->email_verified_at = ($identity['email_confirmed_at'] ?? null) ? ($user->email_verified_at ?: now()) : $user->email_verified_at;
         $user->phone_verified_at = ($identity['phone_confirmed_at'] ?? null) ? ($user->phone_verified_at ?: now()) : $user->phone_verified_at;
