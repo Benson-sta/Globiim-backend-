@@ -30,7 +30,7 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/commerce/listings/{slug}', [CommerceExpansionController::class, 'listing']);
     Route::get('/commerce/partner-network', [CommerceExpansionController::class, 'partnerDirectory']);
 
-    Route::middleware('auth:sanctum')->group(function (): void {
+    Route::middleware('globiim.auth')->group(function (): void {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::get('/profile', [ProfileController::class, 'show']);

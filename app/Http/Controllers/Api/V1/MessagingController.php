@@ -21,6 +21,17 @@ class MessagingController extends Controller
             ->orderByDesc('updated_at')
             ->paginate(30);
 
+        $items->getCollection()->transform(function (Conversation $conversation) use ($user): Conversation {
+            $membership = $conversation->participants->firstWhere('id', $user->id)?->pivot;
+            $lastReadAt = $membership?->last_read_at;
+            $conversation->setAttribute('unread_count', $conversation->messages()
+                ->where('sender_id', '!=', $user->id)
+                ->when($lastReadAt, fn ($query) => $query->where('created_at', '>', $lastReadAt))
+                ->when(!$lastReadAt, fn ($query) => $query->where('sender_id', '!=', $user->id))
+                ->count());
+            return $conversation;
+        });
+
         return response()->json($items);
     }
 

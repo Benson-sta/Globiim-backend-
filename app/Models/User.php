@@ -20,7 +20,7 @@ class User extends Authenticatable
     }
 
     protected $fillable = [
-        'name', 'username', 'email', 'phone', 'password', 'account_type',
+        'supabase_user_id', 'name', 'username', 'email', 'phone', 'password', 'account_type',
         'avatar_url', 'bio', 'country_code', 'email_verified_at',
         'phone_verified_at', 'status',
     ];
