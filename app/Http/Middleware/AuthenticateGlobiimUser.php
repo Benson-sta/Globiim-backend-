@@ -67,7 +67,7 @@ class AuthenticateGlobiimUser
 
         if ($email) {
             $emailOwner = User::query()->where('email', $email)
-                ->when($user, fn ($query) => $query->whereKeyNot($user->id))
+                ->when($user, fn ($query) => $query->where('id', '!=', $user->id))
                 ->exists();
             if ($emailOwner) {
                 return new JsonResponse(['message' => 'This email is already attached to another Globiim account. Contact support.'], 409);
